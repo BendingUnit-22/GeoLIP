@@ -138,7 +138,7 @@ def main(args):
                 norms.append(LA.norm(vec.transpose(), 1)*jcb_norm)
         print("Matrix Product Norms are: ", norms)
 
-    if args.method == "brute" and (args.model == "toy" or args.model == "toy2"):
+    if args.method == "brute" and (args.model == "net2_8" or args.model == "net2_16"):
         NN = NaiveNorms(weights[0], weights[1])
         if args.l2:
             vec = NN.BFNorms(2)
@@ -182,7 +182,7 @@ def main(args):
         print("SDP Norms are: ", lcs)
         
     if args.method == "sdp_py":
-        gs = GL_Solver(weights=weights, dual=True, approx_hidden = False, approx_input=True)
+        gs = GL_Solver(weights=weights, dual=True, approx_hidden = False, approx_input=False)
         print("CVXPY norms are:", gs.sdp_norm(parallel=False))   
     
     print(f'Total time: {float(time() - start_time):.5} seconds')
@@ -193,8 +193,8 @@ if __name__ == '__main__':
     
     parser.add_argument("--model", 
         nargs='?', 
-        const="net2_8", 
-        default="net2_8", 
+        const="net2_16", 
+        default="net2_16", 
         choices=['net2_8', 'net2_16', 'net2', 'net2_128', 'net2_256', 'net3', 'net7', 'net8'], 
         help="which model to use")
     parser.add_argument("--method", 

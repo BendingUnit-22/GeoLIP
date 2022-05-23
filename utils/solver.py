@@ -11,6 +11,11 @@ class GL_Solver:
         if not self.norm == 'inf':
             raise NotImplementedError
         self.layers=len(weights)
+        self.weight_dims = [0] * self.layers
+        for i in range(self.layers):
+            self.weight_dims[i] = self.weight_mats[i].shape[1]
+        #nClasses is the number of classification classes, e.g., nClasses=10 for CIFAR10
+        self.nClasses = self.weight_mats[-1].shape[0]
         if self.layers > 2 or dual:
             self.dual=True
         else:
@@ -22,12 +27,6 @@ class GL_Solver:
             
 
     def construct_mat(self):
-        self.weight_dims = [0] * self.layers
-        for i in range(self.layers):
-            self.weight_dims[i] = self.weight_mats[i].shape[1]
-
-        #nClasses is the number of classification classes, e.g., nClasses=10 for CIFAR10
-        self.nClasses = self.weight_mats[-1].shape[0]
         #n_hidden_vars is the number of hidden nodes
         self.n_hidden_vars = sum(self.weight_dims[1:])
         #Constructing some auxilary matrices for the SDP program
@@ -97,8 +96,8 @@ class GL_Solver:
         prop_weight = np.matmul(self.weight_mats[0].T, np.diagflat(final_weight))
         one_shape = prop_weight.shape[1]
         ones = np.ones((one_shape, 1))
-        print(np.matmul(prop_weight, ones).shape)
-        print(prop_weight.shape)
+        #print(np.matmul(prop_weight, ones).shape)
+        #print(prop_weight.shape)
         sdp_weight_entries = np.concatenate((prop_weight, np.matmul(prop_weight, ones)), axis = 1)
         entries_shape = sdp_weight_entries.shape
         sdp_weight_shape = entries_shape[0]+entries_shape[1]
@@ -109,7 +108,9 @@ class GL_Solver:
         #The CVX optimization program
         prob = cp.Problem(cp.Maximize(cp.trace(sdp_weight @ X)), [cp.diag(X) == np.ones(sdp_weight_shape)])
         #Verbose: False if not want to print out the progress from the solver
-        prob.solve(solver=getattr(cp, 'SCS'), verbose=True, **{'gpu': True, 'use_indirect': True})
+        #prob.solve(solver=getattr(cp, 'SCS'), verbose=True, **{'gpu': True, 'use_indirect': True})
+        prob.solve(solver=cp.MOSEK, verbose=True)
+
         return prob.value
 
     def single_processing_norm(self, i):
@@ -127,6 +128,6 @@ class GL_Solver:
             pool.close()
         else:
             results = []
-            for i in range(1):
+            for i in range(self.nClasses):
                 results.append(self.single_processing_norm(i))
         return results
