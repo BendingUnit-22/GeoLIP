@@ -53,7 +53,7 @@ def models_from_parser(args):
     mat_path = "mnist_weight_toy.mat"
     model = NeuralNetToy(input_size, num_classes).to(device)
 
-    if args.model == "toy2":
+    if args.model == "net2_8":
         model_path = "mnist_model_toy2"
         mat_path = "mnist_weight_toy2.mat"
         model = NeuralNetToy2(input_size, num_classes).to(device)
@@ -69,10 +69,6 @@ def models_from_parser(args):
         model_path = "mnist_model2_256"
         mat_path = "mnist_weight_model2_256.mat"
         model = NeuralNet2_256(input_size, num_classes).to(device)
-    elif args.model == "net2_512":
-        model_path = "mnist_model2_512"
-        mat_path = "mnist_weight_model2_512.mat"
-        model = NeuralNet2_512(input_size, num_classes).to(device)
     elif args.model == "net3":
         model_path = "mnist_model3"
         mat_path = "mnist_weight_model3.mat"
@@ -197,9 +193,9 @@ if __name__ == '__main__':
     
     parser.add_argument("--model", 
         nargs='?', 
-        const="toy", 
-        default="toy", 
-        choices=['toy', 'toy2', 'net2', 'net2_128', 'net2_256', 'net2_512', 'net3', 'net7', 'net8'], 
+        const="net2_8", 
+        default="net2_8", 
+        choices=['net2_8', 'net2_16', 'net2', 'net2_128', 'net2_256', 'net3', 'net7', 'net8'], 
         help="which model to use")
     parser.add_argument("--method", 
         nargs='?', 

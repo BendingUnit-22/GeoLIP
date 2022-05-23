@@ -28,7 +28,7 @@ There are 6 methods to compute the FGL, specified using `--method`:
 5. `sdp_py` is our CVXPY implementation of GeoLIP.
 6. `sampling` is a random sampling in the input space and calculate its gradient norm of each point. This is a lower bound of **true** Lipschitz constant of the neural network, and thus a lower bound of FGL.
 
-You can additionally add `--l2` to compute the **l<sub>2</sub>**-FGL in the methods. Notice that `sdp_dual` for l<sub>2</sub>-FGL is [LipSDP-Neuron](https://github.com/arobey1/LipSDP).
+You can additionally add `--l2` to compute the **l<sub>2</sub>**-FGL with those methods. Notice that `sdp_dual` for l<sub>2</sub>-FGL is [LipSDP-Neuron](https://github.com/arobey1/LipSDP).
 
 If the model has not been trained, the script will first train the model, and save the model and weights `.mat` file. Otherwise, the script will directly load the trained model, and compute the FGL of the neural network.
 

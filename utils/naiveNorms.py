@@ -95,9 +95,3 @@ class NaiveNorms:
         for i in range(self.outSize):
             norms.append(norm1 * self.maxInfNorm(np.array([self.weight2[i]])))
         return norms
-
-w1 = np.array([[1, -2], [1, 2], [3, 1]])
-w2 = np.array([[1, 1, 1]])
-NN = NaiveNorms(w1, w2)
-#print(NN.InfNorms())
-#print(NN.BFNorms(1))
