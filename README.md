@@ -1,5 +1,5 @@
 # GeoLIP
-This is the anonymous submission to neurips.
+This is for the anonymous submission to neurips.
 
 ## Dependencies
 To run this project, you will need the [MOSEK](https://www.mosek.com/) solver. We provide two implementations: one is based on **MATLAB** and the [CVX](http://cvxr.com/cvx/) system, and the other is based on **CVXPY** package. It is highly recommended to use the **MATLAB** version when it is possible.
@@ -40,4 +40,4 @@ An output could look like:
 
 > Total time: 1065.6 seconds
 
-The first 10 numbers are the estimated FGLs correspond to the 10 predictions. `Total time` tracks the total number elapsed to compute the 10 FGLs.
+The first 10 numbers are the estimated FGLs correspond to the 10 predictions. `Total time` tracks the total time elapsed to compute the 10 FGLs.
