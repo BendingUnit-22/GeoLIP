@@ -8,5 +8,10 @@ Other dependencies include: PyTorch, NumPy, SciPy, CVXPY. To use the MATLAB impl
 
 ## Instructions
 ### Train a neural network and store the trained network
+`python3 mnist_eval.py --model toy --train`
 
+There are 9 different choices for network structures, specified using `--model`.
 ### Load the trained network, and compute the FLC of the network
+`python3 mnist_eval.py --model toy --method sdp_dual`
+
+After training the network, one can load the model and choose different methods to estimate the FLC.
