@@ -11,6 +11,8 @@ function L = DGeoLIP(path)
     
     n_hidden_vars = sum(weight_dims(2:end));
 
+    %% We have shown that this compact matrix representation has a dual optimization interpretation.
+    %% We reuse this representation from: https://github.com/arobey1/LipSDP/blob/master/LipSDP/matlab_engine/lipschitz_multi_layer.m
     weights = blkdiag(weight_mats{1:end-1});
     zeros_col = zeros(size(weights, 1), weight_dims(end));
     A = horzcat(weights, zeros_col);
@@ -24,8 +26,7 @@ function L = DGeoLIP(path)
     constraint_size = size(A_on_B, 2);
 
     L = zeros(nClasses, 1);
-    parfor i = 1:nClasses
-    %%for i = 1:nClasses
+    for i = 1:nClasses
         L(i)= solve_sdp(weight_mats, i, constraint_size, weight_dims, A_on_B, n_hidden_vars);
     end 
 end

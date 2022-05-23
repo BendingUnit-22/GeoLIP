@@ -1,69 +1,27 @@
+from time import time
+import argparse
+import os
+
 import torch
 import torch.nn as nn
 import torchvision
 import torchvision.transforms as transforms
 import numpy as np
-from mnist import NeuralNet, NeuralNetToy, NeuralNet2, NeuralNet2_128, NeuralNet2_256, NeuralNet2_512, NeuralNet3, NeuralNet7, NeuralNet8, NeuralNetToy2
 from numpy import linalg as LA
 import matlab.engine
-
-from naiveNorms import NaiveNorms
-from time import time
-import argparse
 from scipy.io import savemat
-from solver import GL_Solver
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--model", nargs='?', const="toy", default="toy", choices=['toy', 'toy2', 'net2', 'net2_128', 'net2_256', 'net2_512', 'net3', 'net7', 'net8'], help="which model to use")
-parser.add_argument('--train', action='store_true', help="train model or evaluate")
-parser.add_argument("--method", nargs='?', const="product", default="product", choices=['brute', 'product', 'sdp', 'sdp_dual', 'sdp_py', 'sampling'], help="which method to use")
-parser.add_argument('--l2', action='store_true', help="estimate l_2 FGL or l_inf")
-
-args = parser.parse_args()
+from utils.mnist import NeuralNet, NeuralNetToy, NeuralNet2, NeuralNet2_128, NeuralNet2_256, NeuralNet2_512, NeuralNet3, NeuralNet7, NeuralNet8, NeuralNetToy2
+from utils.naiveNorms import NaiveNorms
+from utils.solver import GL_Solver
 
 
+#Model training globals
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 input_size = 28 * 28
 num_classes = 10
 batch_size = 100
 learning_rate = 0.001
-
-model_path = "mnist_model_toy"
-mat_path = "mnist_weight_toy.mat"
-model = NeuralNetToy(input_size, num_classes).to(device)
-
-if args.model == "toy2":
-    model_path = "mnist_model_toy2"
-    mat_path = "mnist_weight_toy2.mat"
-    model = NeuralNetToy2(input_size, num_classes).to(device)
-elif args.model == "net2":
-    model_path = "mnist_model2"
-    mat_path = "mnist_weight_model2.mat"
-    model = NeuralNet2(input_size, num_classes).to(device)
-elif args.model == "net2_128":
-    model_path = "mnist_model2_128"
-    mat_path = "mnist_weight_model2_128.mat"
-    model = NeuralNet2_128(input_size, num_classes).to(device)
-elif args.model == "net2_256":
-    model_path = "mnist_model2_256"
-    mat_path = "mnist_weight_model2_256.mat"
-    model = NeuralNet2_256(input_size, num_classes).to(device)
-elif args.model == "net2_512":
-    model_path = "mnist_model2_512"
-    mat_path = "mnist_weight_model2_512.mat"
-    model = NeuralNet2_512(input_size, num_classes).to(device)
-elif args.model == "net3":
-    model_path = "mnist_model3"
-    mat_path = "mnist_weight_model3.mat"
-    model = NeuralNet3(input_size, num_classes).to(device)
-elif args.model == "net7":
-    model_path = "mnist_model7"
-    mat_path = "mnist_weight_model7.mat"
-    model = NeuralNet7(input_size, num_classes).to(device)
-elif args.model == "net8":
-    model_path = "mnist_model8"
-    mat_path = "mnist_weight_model8.mat"
-    model = NeuralNet8(input_size, num_classes).to(device)
 
 # Import MNIST dataset 
 train_dataset = torchvision.datasets.MNIST(root='./data', 
@@ -84,9 +42,52 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset,
                                           batch_size=batch_size, 
                                           shuffle=False)
 
+def models_from_parser(args):
+    if not os.path.exists('models'):
+        os.makedirs('models')
 
+    if not os.path.exists('mats'):
+        os.makedirs('mats')
 
-if args.train:
+    model_path = "mnist_model_toy"
+    mat_path = "mnist_weight_toy.mat"
+    model = NeuralNetToy(input_size, num_classes).to(device)
+
+    if args.model == "toy2":
+        model_path = "mnist_model_toy2"
+        mat_path = "mnist_weight_toy2.mat"
+        model = NeuralNetToy2(input_size, num_classes).to(device)
+    elif args.model == "net2":
+        model_path = "mnist_model2"
+        mat_path = "mnist_weight_model2.mat"
+        model = NeuralNet2(input_size, num_classes).to(device)
+    elif args.model == "net2_128":
+        model_path = "mnist_model2_128"
+        mat_path = "mnist_weight_model2_128.mat"
+        model = NeuralNet2_128(input_size, num_classes).to(device)
+    elif args.model == "net2_256":
+        model_path = "mnist_model2_256"
+        mat_path = "mnist_weight_model2_256.mat"
+        model = NeuralNet2_256(input_size, num_classes).to(device)
+    elif args.model == "net2_512":
+        model_path = "mnist_model2_512"
+        mat_path = "mnist_weight_model2_512.mat"
+        model = NeuralNet2_512(input_size, num_classes).to(device)
+    elif args.model == "net3":
+        model_path = "mnist_model3"
+        mat_path = "mnist_weight_model3.mat"
+        model = NeuralNet3(input_size, num_classes).to(device)
+    elif args.model == "net7":
+        model_path = "mnist_model7"
+        mat_path = "mnist_weight_model7.mat"
+        model = NeuralNet7(input_size, num_classes).to(device)
+    elif args.model == "net8":
+        model_path = "mnist_model8"
+        mat_path = "mnist_weight_model8.mat"
+        model = NeuralNet8(input_size, num_classes).to(device)
+    return "models/"+model_path, "mats/"+mat_path, model
+
+def train_model(model_path, mat_path, model):
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -104,7 +105,13 @@ if args.train:
 
     data = {'weights':np.array(weights, dtype=np.object)}
     savemat(mat_path, data)
-else:
+
+def main(args):
+    model_path, mat_path, model = models_from_parser(args)
+
+    if not os.path.exists(model_path):
+        train_model(model_path, mat_path, model)
+        
     model.load_state_dict(torch.load(model_path))
     weights = []
     for layer in model.modules():
@@ -118,19 +125,10 @@ else:
         print("We will use the dual program to estimate the FGL")
         args.methods = "sdp_dual"
     start_time = time()
-    #print(weights_num)
-    #weight1 = np.array([[1.0,0.5, -1.2, -9.0, 4.3], [3.0, -1.0, 2.1, 1.5, -7.9], [-2.0, 1.5, -2.0, 0.3, 1.9]])
-    #weight2 = np.array([[0.2, 1.3, 3.1], [2.1, 1.1, -0.3]])
-    #weights = [weight1, weight2]
-    #data = {'weights':np.array(weights, dtype=np.object)}
-    #mat_path = "solver_example.mat"
-    #savemat(mat_path, data)
-    
-    
+
     if args.method == "product":
         jcb_norm = 1
         for i in range(weights_num-1):
-            #print(LA.norm(weights[i].transpose(), 1))
             if args.l2:
                 jcb_norm *= LA.norm(weights[i].transpose(), 2)
             else:
@@ -171,6 +169,7 @@ else:
     
     if args.method == "sdp":
         eng = matlab.engine.start_matlab()
+        eng.addpath(r'matlab_solver')
         if args.l2:
             lcs = eng.GeoLIP(mat_path, '2', False)
         else:
@@ -179,6 +178,7 @@ else:
 
     if args.method == "sdp_dual":
         eng = matlab.engine.start_matlab()
+        eng.addpath(r'matlab_solver')
         if args.l2:
             lcs = eng.GeoLIP(mat_path, '2', True)
         else:
@@ -190,3 +190,27 @@ else:
         print("CVXPY norms are:", gs.sdp_norm(parallel=False))   
     
     print(f'Total time: {float(time() - start_time):.5} seconds')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("--model", 
+        nargs='?', 
+        const="toy", 
+        default="toy", 
+        choices=['toy', 'toy2', 'net2', 'net2_128', 'net2_256', 'net2_512', 'net3', 'net7', 'net8'], 
+        help="which model to use")
+    parser.add_argument("--method", 
+        nargs='?', 
+        const="product", 
+        default="product", 
+        choices=['brute', 'product', 'sdp', 'sdp_dual', 'sdp_py', 'sampling'], 
+        help="which method to use")
+    parser.add_argument('--l2', 
+        action='store_true', 
+        help="estimate l_2 FGL or l_inf")
+
+    args = parser.parse_args()
+    
+    main(args)

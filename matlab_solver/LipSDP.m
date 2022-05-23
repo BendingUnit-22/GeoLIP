@@ -1,4 +1,7 @@
 function L = LipSDP(path)
+%% This is modified from LipSDP.
+%% See https://github.com/arobey1/LipSDP/blob/master/LipSDP/matlab_engine/lipschitz_multi_layer.m
+    
     warning('off', 'all');
     weight_mats = load(path).weights;
     [~, dims] = size(weight_mats);

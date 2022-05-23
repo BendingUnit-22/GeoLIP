@@ -15,7 +15,7 @@ function lcs = NGeoLIP(path, norm)
         end
     end
     lcs = zeros(outSize, 1);
-    parfor i=1:outSize
+    for i=1:outSize
         if norm == '2'
             lcs(i) = lip2(weights(:,:,i));
         else
