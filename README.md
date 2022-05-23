@@ -7,7 +7,7 @@ To run this project, you will need the [MOSEK](https://www.mosek.com/) solver. W
 Other dependencies include: `PyTorch`, `NumPy`, `SciPy`, `CVXPY`. To use the MATLAB implementation, you will also need to install [MATLAB Engine API for Python](https://www.mathworks.com/help/matlab/matlab-engine-for-python.html).
 
 ## Instructions
-`python3 mnist_eval.py --model toy --method sdp_dual`
+`python3 mnist_eval.py --model net2 --method sdp_dual`
 
 There are 8 different choices for network structures, specified using `--model`. They correpond to different architectures we used in the paper submission:
 1. `net2_8` is a two-layer network with 8 hidden units;
@@ -32,3 +32,12 @@ You can additionally add `--l2` to compute the **l<sub>2</sub>**-FGL with those 
 
 If the model has not been trained, the script will first train the model, and save the model and weights `.mat` file. Otherwise, the script will directly load the trained model, and compute the FGL of the neural network.
 
+### Output
+An output could look like:
+
+
+> SDP Norms are: [[313.1454076757241],[319.19524580428464],[323.6529825827408],[284.99329554034045],[378.23052410865967],[336.0959466308909],[407.33429987848444],[342.77337863444995],[289.83801664838063],[381.3517915088285]]
+
+> Total time: 1065.6 seconds
+
+The first 10 numbers are the estimated FGLs correspond to the 10 predictions. `Total time` tracks the total number elapsed to compute the 10 FGLs.
