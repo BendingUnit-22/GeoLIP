@@ -23,10 +23,12 @@ There are 8 different choices for network structures, specified using `--model`.
 There are 6 methods to compute the FGL, specified using `--method`:
 1. `brute` is a brute-force search for the extreme activation pattern. Because it take exponential-time to run, we can only work with two-layer networks with 8 or 16 units in our experiments;
 2. `product` is the matrix-norm-product method, which is a naive upper bound of the FGL;
-3. `sdp` is the GeoLIP in the natural relaxation form. Notice that this only applies for two-layer networks.
+3. `sdp` is the GeoLIP in the natural relaxation form. Notice that this only applies to two-layer networks.
 4. `sdp_dual` is the GeoLIP in the dual form.
 5. `sdp_py` is our CVXPY implementation of GeoLIP.
 6. `sampling` is a random sampling in the input space and calculate its gradient norm of each point. This is a lower bound of **true** Lipschitz constant of the neural network, and thus a lower bound of FGL.
+
+You can additionally add `--l2` to compute the **l<sub>2</sub>**-FGL in the methods. Notice that `sdp_dual` for l<sub>2</sub>-FGL is [LipSDP-Neuron](https://github.com/arobey1/LipSDP).
 
 If the model has not been trained, the script will first train the model, and save the model and weights `.mat` file. Otherwise, the script will directly load the trained model, and compute the FGL of the neural network.
 
